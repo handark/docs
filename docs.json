@@ -31,19 +31,18 @@
             "group": "Empezando",
             "pages": [
               "index",
-              "guia-rapida",
-              "development"
+              "guia-rapida"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Documentos",
             "pages": [
               "essentials/settings",
               "essentials/navigation"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Contactos",
             "pages": [
               "essentials/markdown",
               "essentials/code",
@@ -52,7 +51,7 @@
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Ajustes",
             "pages": [
               "ai-tools/cursor",
               "ai-tools/claude-code",
@@ -66,13 +65,13 @@
         "icon": "code",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Documentación de la API",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Documentos",
             "pages": [
               "api-reference/endpoint/get",
               "api-reference/endpoint/create",
