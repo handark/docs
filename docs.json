@@ -13,7 +13,7 @@
       "anchors": [
         {
           "anchor": "Ir a Nexafirma",
-          "icon": "book-open-cover",
+          "icon": "signature",
           "href": "https://nexafirma.com"
         },
         {
@@ -62,7 +62,8 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Referencia API",
+        "icon": "code",
         "groups": [
           {
             "group": "API documentation",
