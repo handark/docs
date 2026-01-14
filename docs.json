@@ -15,11 +15,6 @@
           "anchor": "Ir a Nexafirma",
           "icon": "signature",
           "href": "https://nexafirma.com"
-        },
-        {
-          "anchor": "Blog",
-          "icon": "newspaper",
-          "href": "https://mintlify.com/blog"
         }
       ]
     },
@@ -37,8 +32,8 @@
           {
             "group": "Documentos",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "documentos/enviar-y-configurar-proceso-firma",
+              "documentos/explorar"
             ]
           },
           {
