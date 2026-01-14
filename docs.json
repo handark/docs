@@ -114,5 +114,9 @@
       "linkedin": "https://linkedin.com/company/mintlify"
     }
   },
-  "description": "Documentación oficial de Nexafirma"
+  "description": "Documentación oficial de Nexafirma",
+  "appearance": {
+    "strict": true,
+    "default": "light"
+  }
 }
