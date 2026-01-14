@@ -58,20 +58,12 @@
       {
         "tab": "Referencia API",
         "icon": "code",
+        "openapi": "openapi.json",
         "groups": [
           {
             "group": "Documentación de la API",
             "pages": [
               "api"
-            ]
-          },
-          {
-            "group": "Documentos",
-            "pages": [
-              "api/endpoint/crear-documento",
-              "api/endpoint/obtener-documentos",
-              "api/endpoint/delete",
-              "api/endpoint/webhook"
             ]
           }
         ]
