@@ -24,7 +24,10 @@
         "groups": [
           {
             "group": "Empezando",
-            "pages": ["index", "guia-rapida"]
+            "pages": [
+              "index",
+              "guia-rapida"
+            ]
           },
           {
             "group": "Documentos",
@@ -55,13 +58,15 @@
       {
         "tab": "Referencia API",
         "icon": "code",
-        "openapi": "api/openapi.json",
         "groups": [
           {
             "group": "Documentación de la API",
-            "pages": ["api"]
+            "pages": [
+              "api"
+            ]
           }
-        ]
+        ],
+        "openapi": "api/openapi.json"
       }
     ]
   },

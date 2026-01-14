@@ -21,34 +21,43 @@
   "paths": {
     "/documentos": {
       "get": {
-        "description": "Retorna un listado paginado de los documentos",
+        "summary": "Listar documentos",
+        "description": "Retorna un listado paginado de los documentos de la empresa",
         "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número de página (por defecto: 1)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
           {
             "name": "limit",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "description": "Cantidad de resultados por página (por defecto: 10)",
             "schema": {
               "type": "integer",
-              "format": "int32"
+              "minimum": 1,
+              "default": 10
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Respuesta de la lista de documentos",
+            "description": "Lista paginada de documentos",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Documento"
-                  }
+                  "$ref": "#/components/schemas/DocumentosPaginatedResponse"
                 }
               }
             }
           },
-          "400": {
-            "description": "Unexpected error",
+          "401": {
+            "description": "No autorizado",
             "content": {
               "application/json": {
                 "schema": {
@@ -60,31 +69,42 @@
         }
       },
       "post": {
+        "summary": "Crear documento",
         "description": "Carga un nuevo documento y crea el proceso de firma electrónica",
         "requestBody": {
           "description": "Datos del documento a enviar a firmar",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Documento"
+                "$ref": "#/components/schemas/UploadDocumento"
               }
             }
           },
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "Respuesta de la carga del documento y creación del proceso de firma electrónica",
+          "201": {
+            "description": "Documento creado exitosamente",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DocumentoResponse"
+                  "$ref": "#/components/schemas/UploadDocumentoResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Error de validación",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,28 +116,482 @@
         }
       }
     },
-    "/documentos/{id}": {
-      "delete": {
-        "description": "Elimina un documento basado en el ID proporcionado",
+    "/documentos/estado": {
+      "get": {
+        "summary": "Listar documentos por estado",
+        "description": "Retorna un listado paginado de documentos filtrados por estado",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID del documento a eliminar",
+            "name": "estado",
+            "in": "query",
+            "description": "Estado del documento",
             "required": true,
             "schema": {
+              "type": "string",
+              "enum": ["firmado", "pendiente", "cancelado", "rechazado"]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número de página (por defecto: 1)",
+            "schema": {
               "type": "integer",
-              "format": "int64"
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Cantidad de resultados por página (por defecto: 10)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Documento eliminado",
-            "content": {}
+          "200": {
+            "description": "Lista paginada de documentos filtrados por estado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentosPaginatedResponse"
+                }
+              }
+            }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Error de validación",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/documentos/por-firmante": {
+      "get": {
+        "summary": "Consultar documentos por firmante",
+        "description": "Retorna un listado paginado de documentos asociados a un firmante específico",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email del firmante (requerido si no se proporciona numeroCelular)",
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          {
+            "name": "numeroCelular",
+            "in": "query",
+            "description": "Número de celular del firmante (requerido si no se proporciona email)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número de página (por defecto: 1)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Cantidad de resultados por página (por defecto: 10)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de documentos del firmante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentosPaginatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación - debe proporcionar email o numeroCelular",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/documentos/cancelar/{idDocumentoFirma}": {
+      "post": {
+        "summary": "Cancelar documento",
+        "description": "Cancela un documento en proceso de firma",
+        "parameters": [
+          {
+            "name": "idDocumentoFirma",
+            "in": "path",
+            "description": "ID UUID del documento a cancelar",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Motivo de cancelación (opcional)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "motivo": {
+                    "type": "string",
+                    "description": "Motivo de la cancelación",
+                    "example": "Documento enviado por error"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Documento cancelado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Documento cancelado exitosamente"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DocumentoDetalle"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error - El documento no se puede cancelar (ya está firmado o cancelado)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Documento no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/documentos/{idDocumentoFirma}": {
+      "get": {
+        "summary": "Obtener documento",
+        "description": "Retorna los detalles de un documento específico",
+        "parameters": [
+          {
+            "name": "idDocumentoFirma",
+            "in": "path",
+            "description": "ID UUID del documento",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del documento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentoDetalle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Documento no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/documentos/reenviar/{idDocumentoFirma}": {
+      "get": {
+        "summary": "Reenviar notificaciones",
+        "description": "Reenvía las notificaciones de inicio de firma a los firmantes del documento",
+        "parameters": [
+          {
+            "name": "idDocumentoFirma",
+            "in": "path",
+            "description": "ID UUID del documento",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado del reenvío de notificaciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Notificaciones reenviadas correctamente"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Documento no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clientes": {
+      "get": {
+        "summary": "Listar clientes",
+        "description": "Retorna todos los clientes del distribuidor",
+        "responses": {
+          "200": {
+            "description": "Lista de clientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Cliente"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear cliente",
+        "description": "Crea un nuevo cliente para el distribuidor",
+        "requestBody": {
+          "description": "Datos del cliente a crear",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCliente"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Cliente creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cliente"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clientes/{identificacion}": {
+      "get": {
+        "summary": "Obtener cliente por identificación",
+        "description": "Retorna los detalles de un cliente específico por su número de identificación",
+        "parameters": [
+          {
+            "name": "identificacion",
+            "in": "path",
+            "description": "Número de identificación del cliente",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del cliente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cliente"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente no encontrado",
             "content": {
               "application/json": {
                 "schema": {
@@ -133,20 +607,21 @@
   "webhooks": {
     "/documento/webhook": {
       "post": {
-        "description": "Información sobre un nuevo documento enviado a firmar",
+        "summary": "Webhook de documento",
+        "description": "Notificación sobre cambios de estado en un documento",
         "requestBody": {
-          "description": "Documento enviado a firmar",
+          "description": "Información del documento y su estado actual",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Documento"
+                "$ref": "#/components/schemas/DocumentoWebhook"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Retorna un status 200 para indicar que los datos fueron recibidos correctamente"
+            "description": "Webhook recibido correctamente"
           }
         }
       }
@@ -154,48 +629,493 @@
   },
   "components": {
     "schemas": {
-      "Documento": {
-        "required": ["nombre"],
+      "UploadDocumento": {
         "type": "object",
+        "required": ["nombre", "firmantes", "metodoNotificacion"],
         "properties": {
           "nombre": {
-            "description": "El nombre del documento",
-            "type": "string"
+            "type": "string",
+            "description": "Nombre del documento",
+            "example": "Contrato de servicios"
           },
-          "etiqueta": {
-            "description": "Etiqueta para especificar el tipo",
-            "type": "string"
+          "archivoBase64": {
+            "type": "string",
+            "description": "Archivo en formato Base64 (requerido si no se proporciona archivoUrl)",
+            "example": "JVBERi0xLjQKJeLjz9MKMy..."
+          },
+          "archivoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL del archivo (requerido si no se proporciona archivoBase64)",
+            "example": "https://ejemplo.com/documento.pdf"
+          },
+          "firmantes": {
+            "type": "array",
+            "description": "Lista de firmantes del documento",
+            "items": {
+              "$ref": "#/components/schemas/Firmante"
+            },
+            "minItems": 1
+          },
+          "metodoNotificacion": {
+            "type": "string",
+            "enum": [
+              "whatsapp",
+              "email",
+              "sms",
+              "email_whatsapp",
+              "whatsapp_email",
+              "sms_email"
+            ],
+            "description": "Método de notificación para los firmantes",
+            "example": "email_whatsapp"
+          },
+          "idiomaNotificaciones": {
+            "type": "string",
+            "enum": ["es", "en"],
+            "description": "Idioma de las notificaciones (por defecto: es)",
+            "example": "es"
+          },
+          "webhook": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL del webhook para notificaciones de cambios de estado",
+            "example": "https://ejemplo.com/webhook"
+          },
+          "identificacionCliente": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 20,
+            "description": "Identificación del cliente asociado al documento",
+            "example": "123456789"
           }
         }
       },
-      "DocumentoResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Documento"
+      "Firmante": {
+        "type": "object",
+        "required": ["nombre", "indicativoCelular", "numeroCelular", "email"],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "description": "Nombre completo del firmante",
+            "example": "Juan Pérez"
           },
-          {
-            "required": ["idDocumentoFirma"],
+          "indicativoCelular": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Código de país del número celular",
+            "example": "+57"
+          },
+          "numeroCelular": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 11,
+            "description": "Número de celular del firmante",
+            "example": "3001234567"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Correo electrónico del firmante",
+            "example": "juan.perez@ejemplo.com"
+          },
+          "idiomaNotificaciones": {
+            "type": "string",
+            "enum": ["es", "en"],
+            "description": "Idioma de las notificaciones para este firmante (por defecto: es)",
+            "example": "es"
+          }
+        }
+      },
+      "UploadDocumentoResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Documento creado exitosamente"
+          },
+          "data": {
             "type": "object",
             "properties": {
-              "idDocumentoFirma": {
-                "description": "Identificación del documento",
-                "type": "integer",
-                "format": "int64"
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID único del documento",
+                "example": "550e8400-e29b-41d4-a716-446655440000"
+              },
+              "fechaCreacion": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Fecha de creación del documento",
+                "example": "2026-01-13T10:30:00Z"
+              },
+              "estado": {
+                "type": "string",
+                "enum": ["pendiente", "firmado", "cancelado", "rechazado"],
+                "description": "Estado actual del documento",
+                "example": "pendiente"
+              },
+              "nombreDocumento": {
+                "type": "string",
+                "description": "Nombre del documento",
+                "example": "Contrato de servicios"
+              },
+              "rutaDocumentoOriginal": {
+                "type": "string",
+                "description": "Ruta de almacenamiento del documento original",
+                "example": "/documentos/550e8400-e29b-41d4-a716-446655440000.pdf"
+              },
+              "metodoNotificacion": {
+                "type": "string",
+                "description": "Método de notificación utilizado",
+                "example": "email_whatsapp"
+              },
+              "idiomaNotificaciones": {
+                "type": "string",
+                "description": "Idioma de las notificaciones",
+                "example": "es"
+              },
+              "webhook": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL del webhook configurado",
+                "example": "https://ejemplo.com/webhook"
+              },
+              "firmantes": {
+                "type": "array",
+                "description": "Lista de firmantes con su estado actual",
+                "items": {
+                  "$ref": "#/components/schemas/FirmanteResponse"
+                }
               }
             }
           }
-        ]
+        }
       },
-      "Error": {
-        "required": ["error", "mensaje"],
+      "FirmanteResponse": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "nombre": {
+            "type": "string",
+            "description": "Nombre del firmante",
+            "example": "Juan Pérez"
           },
-          "mensaje": {
-            "type": "string"
+          "indicativoCelular": {
+            "type": "string",
+            "description": "Código de país del número celular",
+            "example": "+57"
+          },
+          "numeroCelular": {
+            "type": "string",
+            "description": "Número de celular del firmante",
+            "example": "3001234567"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Correo electrónico del firmante",
+            "example": "juan.perez@ejemplo.com"
+          },
+          "estado": {
+            "type": "string",
+            "enum": ["pendiente", "firmado", "rechazado"],
+            "description": "Estado de la firma",
+            "example": "pendiente"
+          }
+        }
+      },
+      "DocumentoDetalle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único del documento",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "nombre": {
+            "type": "string",
+            "description": "Nombre del documento",
+            "example": "Contrato de servicios"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de creación",
+            "example": "2026-01-13T10:30:00Z"
+          },
+          "estado": {
+            "type": "string",
+            "enum": ["pendiente", "firmado", "cancelado", "rechazado"],
+            "description": "Estado del documento",
+            "example": "pendiente"
+          },
+          "rutaDocumentoOriginal": {
+            "type": "string",
+            "description": "Ruta del documento original",
+            "example": "/documentos/550e8400-e29b-41d4-a716-446655440000.pdf"
+          },
+          "metodoNotificacion": {
+            "type": "string",
+            "description": "Método de notificación",
+            "example": "email_whatsapp"
+          },
+          "firmantes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FirmanteResponse"
+            }
+          }
+        }
+      },
+      "DocumentosPaginatedResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentoDetalle"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "description": "Total de documentos",
+                "example": 100
+              },
+              "page": {
+                "type": "integer",
+                "description": "Página actual",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Resultados por página",
+                "example": 10
+              },
+              "totalPages": {
+                "type": "integer",
+                "description": "Total de páginas",
+                "example": 10
+              }
+            }
+          }
+        }
+      },
+      "DocumentoWebhook": {
+        "type": "object",
+        "description": "Datos enviados al webhook cuando cambia el estado de un documento",
+        "properties": {
+          "idDocumentoFirma": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID del documento",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "nombreDocumento": {
+            "type": "string",
+            "description": "Nombre del documento",
+            "example": "Contrato de servicios"
+          },
+          "estado": {
+            "type": "string",
+            "enum": ["pendiente", "firmado", "cancelado", "rechazado"],
+            "description": "Estado actual del documento",
+            "example": "firmado"
+          },
+          "fechaActualizacion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de la actualización",
+            "example": "2026-01-13T15:45:00Z"
+          },
+          "firmantes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FirmanteResponse"
+            }
+          }
+        }
+      },
+      "CreateCliente": {
+        "type": "object",
+        "required": [
+          "nombreCliente",
+          "identificacion",
+          "celular",
+          "direccion",
+          "color",
+          "nombreContacto",
+          "emailContacto",
+          "telefonoContacto",
+          "loginUsuario",
+          "nombreUsuario",
+          "passwordUsuario",
+          "telefonoMovilUsuario",
+          "indicativoTelefonoMovilUsuario"
+        ],
+        "properties": {
+          "nombreCliente": {
+            "type": "string",
+            "description": "Nombre o razón social del cliente",
+            "example": "Empresa ABC S.A.S."
+          },
+          "identificacion": {
+            "type": "string",
+            "description": "NIT o identificación del cliente",
+            "example": "900123456-7"
+          },
+          "celular": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 14,
+            "description": "Número de celular del cliente",
+            "example": "+573001234567"
+          },
+          "direccion": {
+            "type": "string",
+            "description": "Dirección física del cliente",
+            "example": "Calle 123 #45-67"
+          },
+          "color": {
+            "type": "string",
+            "description": "Color de branding del cliente (formato hexadecimal)",
+            "example": "#3B82F6"
+          },
+          "nombreContacto": {
+            "type": "string",
+            "description": "Nombre de la persona de contacto",
+            "example": "María García"
+          },
+          "emailContacto": {
+            "type": "string",
+            "format": "email",
+            "description": "Correo electrónico del contacto",
+            "example": "maria.garcia@ejemplo.com"
+          },
+          "telefonoContacto": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 14,
+            "description": "Teléfono del contacto",
+            "example": "+573001234567"
+          },
+          "logoBase64": {
+            "type": "string",
+            "description": "Logo del cliente en formato Base64 (requerido si no se proporciona logoUrl)",
+            "example": "iVBORw0KGgoAAAANSUhEU..."
+          },
+          "logoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL del logo del cliente (requerido si no se proporciona logoBase64)",
+            "example": "https://ejemplo.com/logo.png"
+          },
+          "loginUsuario": {
+            "type": "string",
+            "format": "email",
+            "description": "Correo electrónico para el usuario administrador del cliente",
+            "example": "admin@ejemplo.com"
+          },
+          "nombreUsuario": {
+            "type": "string",
+            "description": "Nombre del usuario administrador",
+            "example": "Administrador"
+          },
+          "passwordUsuario": {
+            "type": "string",
+            "description": "Contraseña para el usuario administrador",
+            "example": "Password123!"
+          },
+          "telefonoMovilUsuario": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 11,
+            "description": "Número de celular del usuario administrador",
+            "example": "3001234567"
+          },
+          "indicativoTelefonoMovilUsuario": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Código de país del celular del usuario",
+            "example": "+57"
+          }
+        }
+      },
+      "Cliente": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único del cliente",
+            "example": 1
+          },
+          "nombreCliente": {
+            "type": "string",
+            "description": "Nombre del cliente",
+            "example": "Empresa ABC S.A.S."
+          },
+          "identificacion": {
+            "type": "string",
+            "description": "Identificación del cliente",
+            "example": "900123456-7"
+          },
+          "celular": {
+            "type": "string",
+            "description": "Celular del cliente",
+            "example": "+573001234567"
+          },
+          "direccion": {
+            "type": "string",
+            "description": "Dirección del cliente",
+            "example": "Calle 123 #45-67"
+          },
+          "color": {
+            "type": "string",
+            "description": "Color de branding",
+            "example": "#3B82F6"
+          },
+          "logoUrl": {
+            "type": "string",
+            "description": "URL del logo",
+            "example": "https://storage.nexafirma.com/logos/cliente-1.png"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha de creación del cliente",
+            "example": "2026-01-13T10:30:00Z"
+          },
+          "activo": {
+            "type": "boolean",
+            "description": "Estado del cliente",
+            "example": true
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["statusCode", "message"],
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Código de estado HTTP",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensaje de error",
+            "example": "Error de validación en los datos enviados"
+          },
+          "error": {
+            "type": "string",
+            "description": "Tipo de error",
+            "example": "Bad Request"
           }
         }
       }
@@ -205,7 +1125,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "X-API-Key",
-        "description": "API Key para autenticación. Solicita tu API Key al equipo de Nexafirma."
+        "description": "API Key para autenticación. Obtine tu API Key en la sección de API de tu cuenta en Nexafirma."
       }
     }
   }
