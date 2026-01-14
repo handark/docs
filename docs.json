@@ -70,8 +70,8 @@
             "pages": [
               "api/endpoint/crear-documento",
               "api/endpoint/obtener-documentos",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api/endpoint/delete",
+              "api/endpoint/webhook"
             ]
           }
         ]
@@ -88,12 +88,7 @@
         "label": "Soporte",
         "href": "mailto:cto@enviared.co"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   },
   "contextual": {
     "options": [
