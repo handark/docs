@@ -68,8 +68,8 @@
           {
             "group": "Documentos",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
+              "api/endpoint/crear-documento",
+              "api/endpoint/obtener-documentos",
               "api-reference/endpoint/delete",
               "api-reference/endpoint/webhook"
             ]
