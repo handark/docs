@@ -131,7 +131,7 @@
     }
   },
   "webhooks": {
-    "/plant/webhook": {
+    "/documento/webhook": {
       "post": {
         "description": "Información sobre un nuevo documento enviado a firmar",
         "requestBody": {
