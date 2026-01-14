@@ -116,7 +116,7 @@
   },
   "description": "Documentación oficial de Nexafirma",
   "appearance": {
-    "strict": true,
-    "default": "light"
+    "strict": false,
+    "default": "system"
   }
 }
