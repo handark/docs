@@ -35,13 +35,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Respuesta de la lista de documentos",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Plant"
+                    "$ref": "#/components/schemas/Documento"
                   }
                 }
               }
@@ -60,13 +60,13 @@
         }
       },
       "post": {
-        "description": "Creates a new plant in the store",
+        "description": "Carga un nuevo documento y crea el proceso de firma electrónica",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "description": "Datos del documento a enviar a firmar",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/Documento"
               }
             }
           },
@@ -74,11 +74,11 @@
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Respuesta de la carga del documento y creación del proceso de firma electrónica",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/DocumentoResponse"
                 }
               }
             }
@@ -96,14 +96,14 @@
         }
       }
     },
-    "/plants/{id}": {
+    "/documentos/{id}": {
       "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+        "description": "Elimina un documento basado en el ID proporcionado",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of plant to delete",
+            "description": "ID del documento a eliminar",
             "required": true,
             "schema": {
               "type": "integer",
@@ -113,7 +113,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Plant deleted",
+            "description": "Documento eliminado",
             "content": {}
           },
           "400": {
@@ -133,20 +133,20 @@
   "webhooks": {
     "/plant/webhook": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "description": "Información sobre un nuevo documento enviado a firmar",
         "requestBody": {
-          "description": "Plant added to the store",
+          "description": "Documento enviado a firmar",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/Documento"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "Retorna un status 200 para indicar que los datos fueron recibidos correctamente"
           }
         }
       }
@@ -154,35 +154,31 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Documento": {
+        "required": ["nombre"],
         "type": "object",
         "properties": {
-          "name": {
-            "description": "The name of the plant",
+          "nombre": {
+            "description": "El nombre del documento",
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
+          "etiqueta": {
+            "description": "Etiqueta para especificar el tipo",
             "type": "string"
           }
         }
       },
-      "NewPlant": {
+      "DocumentoResponse": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/Plant"
+            "$ref": "#/components/schemas/Documento"
           },
           {
-            "required": [
-              "id"
-            ],
+            "required": ["idDocumentoFirma"],
             "type": "object",
             "properties": {
-              "id": {
-                "description": "Identification number of the plant",
+              "idDocumentoFirma": {
+                "description": "Identificación del documento",
                 "type": "integer",
                 "format": "int64"
               }
@@ -191,17 +187,14 @@
         ]
       },
       "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+        "required": ["error", "mensaje"],
         "type": "object",
         "properties": {
           "error": {
             "type": "integer",
             "format": "int32"
           },
-          "message": {
+          "mensaje": {
             "type": "string"
           }
         }
