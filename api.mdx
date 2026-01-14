@@ -7,22 +7,32 @@ description: "Esta página le guiará en el proceso para comenzar a utilizar la 
   Para acceder a la API, es necesario contar con una cuenta en Nexafirma. Si aún no dispone de una, puede registrarse en [nexafirma.com](http://nexafirma.com).
 </Note>
 
-## Welcome
+Las peticiones a la API se deberán realizar usando un API Key (Clave API):
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Obtener su Api Key
 
-<Card title="Plant Store Endpoints" icon="leaf" href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json">
-  View the OpenAPI specification file
-</Card>
+Usted puede obtener su API Key en la opción de Nexafirma: **Perfil y Cuenta / API,** o ingresando directamente a:
 
-## Authentication
+https://www.nexafirma.com/acceso-api
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+### **Errores al usar API Key**
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+<Danger>
+  Si no envia su clave API, está mal formada o no es válida, recibirá un código de respuesta HTTP 401 No autorizado.
+</Danger>
+
+## **Límites de velocidad y uso**
+
+Los límites de velocidad de acceso a la API se aplican por cada clave de API en unidad de tiempo. El límite es de 300 solicitudes por minuto. Además, según su plan, puede tener límites de uso. Si excede alguno de los límites, su solicitud devolverá un código de estado HTTP 429 Demasiadas solicitudes.
+
+Cada respuesta de API devuelve el siguiente conjunto de encabezados para ayudarlo a identificar su estado de uso:
+
+| **Header**              | **Description**                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| `X-RateLimit-Limit`     | El número máximo de solicitudes que el consumidor puede realizar por minuto.          |
+| `X-RateLimit-Remaining` | El número de solicitudes restantes en la ventana de límite de velocidad actual.       |
+| `X-RateLimit-Reset`     | La hora en la que se restablece la ventana de límite de velocidad actual en segundos. |
+
+### **503 response**
+
+Una respuesta HTTP 503 de nuestros servidores indica que hay un aumento inesperado en el tráfico de acceso a la API. El servidor suele estar operativo en los próximos cinco minutos. Si la interrupción persiste o recibe cualquier otro tipo de error HTTP 5XX, comuníquese con el servicio de asistencia.
